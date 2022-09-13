@@ -12,12 +12,14 @@ class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="PythonSweeper")
 
-        self.game = ps.Game(10, 10, 10)
+        self.game = ps.Game(10, 10, 20)
         self.grid = Gtk.Grid()
         self.add(self.grid)
 
         self.reset_button = Gtk.Button(label="Reset")
         self.reset_button.connect("clicked", self.on_reset_button_clicked)
+        self.grid.attach(self.reset_button, 0, 0, 10, 1)
+        
         
 
         self.buttons = []
@@ -28,28 +30,25 @@ class MainWindow(Gtk.Window):
                 button.set_label(" ")
                 button.set_size_request(50, 50)
                 button.connect("clicked", self.on_button_clicked, x, y)
-                button.connect("button_press_event",
-                               self.on_flag_button_clicked, x, y)
-
                 self.buttons[y].append(button)
                 self.grid.attach(button, x, y, 1, 1)
+            
 
     def on_button_clicked(self, widget, x, y):
         status = self.game.reveal(x, y)
         if status == GameStatus.WIN:
             for y in range(10):
                 for x in range(10):
-                    if self.game.player_board[x][y] != 9:
-                        self.buttons[y][x].set_label("🌸")
-                    else:
-                        self.buttons[y][x].set_label("⚠️")
+                    self.reveal(x, y)
+        self.update_buttons()
+        if status == GameStatus.WIN:
             print("You win!")
         elif status == GameStatus.LOSE:
             print("You lose!")
         self.update_buttons()
 
     def on_reset_button_clicked(self, widget):
-        self.game = ps.Game(10, 10, 10)
+        self.game = ps.Game(10, 10, 20)
         self.update_buttons()
 
     def on_flag_button_clicked(self, widget, x, y):
@@ -70,6 +69,7 @@ class MainWindow(Gtk.Window):
                 else:
                     self.buttons[y][x].set_label(
                         str(self.game.player_board[y][x]))
+                    
 
 
 win = MainWindow()
